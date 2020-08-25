@@ -13,9 +13,9 @@ DEFAULT_CAMERA_CONFIG = {
 
 
 def mass_center(model, sim):
-    mass = np.expand_dims(mdoel.body_mass, axis=1)
+    mass = np.expand_dims(model.body_mass, axis=1)
     xpos = sim.data.xipos
-    return (np.sum(mass * xpos, axis = 0) / np.sim(mass))[0:2].copy()
+    return (np.sum(mass * xpos, axis = 0) / np.sum(mass))[0:2].copy()
 
 class JaxonRunEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self, 
@@ -64,7 +64,7 @@ class JaxonRunEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         contact_cost = self._contact_cost_weight * np.sum(
                 np.square(contact_forces))
         min_cost, max_cost = self._contact_cost_range
-        contact_cost = np.clip(contact_cost, min_cost, max_const)
+        contact_cost = np.clip(contact_cost, min_cost, max_cost)
         return contact_cost
 
     @property
@@ -124,7 +124,7 @@ class JaxonRunEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         done = self.done
         info =  {
                 'reward_linvel': forward_reward,
-                'reward_qudctrl': -ctrl_const, 
+                'reward_qudctrl': -ctrl_cost, 
                 'reward_alive': healthy_reward, 
                 'reward_impact': -contact_cost,
 
@@ -155,7 +155,7 @@ class JaxonRunEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def viewer_setup(self):
         for key, value in DEFAULT_CAMERA_CONFIG.items():
-            if isinstance(value, np.ndarry):
+            if isinstance(value, np.ndarray):
                 getattr(self.viewer.cam, key)[:] = value
             else:
                 setattr(self.viewer.cam, key, value)

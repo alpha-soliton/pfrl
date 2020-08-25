@@ -20,6 +20,7 @@ from pfrl import explorers
 from pfrl import utils
 from pfrl import replay_buffers
 
+import jaxon_run
 
 def main():
 
@@ -98,10 +99,7 @@ def main():
     utils.set_random_seed(args.seed)
 
     def make_env(test):
-        env = gym.make(args.env)
-        # Unwrap TimeLimit wrapper
-        assert isinstance(env, gym.wrappers.TimeLimit)
-        env = env.env
+        env = jaxon_run.JaxonRunEnv()
         # Use different random seeds for train and test envs
         env_seed = 2 ** 32 - 1 - args.seed if test else args.seed
         env.seed(env_seed)
@@ -114,7 +112,7 @@ def main():
         return env
 
     env = make_env(test=False)
-    timestep_limit = env.spec.max_episode_steps
+    timestep_limit = 1000
     obs_space = env.observation_space
     action_space = env.action_space
     print("Observation space:", obs_space)
